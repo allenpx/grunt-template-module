@@ -104,6 +104,22 @@ module.exports = function ( grunt ) {
 		var compiled, templateName;
 		var oneSource = (this.files.length === 1);
 
+		//normalize this.files
+		if(typeof this.data.files == "string"){
+			oneSource = true;
+			this.files = grunt.file.expand(this.data.files);
+
+			this.files.forEach( function ( f , key) {
+				var src = f;
+				var dest = path.dirname(src) +"/"+ path.basename(src, path.extname(src)) + ".js";
+				this.files[key] = {
+					src: [src],
+					dest:dest
+				}
+			},this);
+		}
+			console.log(this.files);
+
 		this.files.forEach( function ( f ) {
 
 			sys.each( f.src, function ( srcFile ) {
