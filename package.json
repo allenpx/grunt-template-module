@@ -2,28 +2,18 @@
   "name": "grunt-template-module",
   "description": "Precompile templates to a file with option to expose templates as a node/commonjs module.",
   "version": "0.5.1",
-  "homepage": "https://github.com/terryweiss/grunt-template-module",
-  "contributors": [
-    {
-      "name": "Terry Weiss",
-      "url": "http://terryweiss.net"
-    },
-    {
-      "name": "Grunt Team",
-      "url": "http://gruntjs.com/"
-    }
-  ],
+  "homepage": "https://github.com/allenpx/grunt-template-module",
   "repository": {
     "type": "git",
-    "url": "git://github.com/terryweiss/grunt-template-module.git"
+    "url": "git://github.com/allenpx/grunt-template-module.git"
   },
   "bugs": {
-    "url": "https://github.com/terryweiss/grunt-template-module/issues"
+    "url": "https://github.com/allenpx/grunt-template-module/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/terryweiss/grunt-template-module/blob/master/LICENSE-MIT"
+      "url": "https://github.com/allenpx/grunt-template-module/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {
