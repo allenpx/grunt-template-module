@@ -118,12 +118,13 @@ module.exports = function ( grunt ) {
 				}
 			},this);
 		}
-			console.log(this.files);
+			//console.log(this.files);
 
 		this.files.forEach( function ( f ) {
 
 			sys.each( f.src, function ( srcFile ) {
 				var fpath;
+				var output = [];
 				if ( f.cwd ) {
 					fpath = path.resolve( f.cwd, srcFile );
 				} else {
@@ -131,13 +132,20 @@ module.exports = function ( grunt ) {
 				}
 				var src = grunt.file.read( fpath );
 				try {
-					if ( options.provider === "ejs" || options.provider === "handlebars") {
+					if ( options.provider === "ejs") {
 						compiled = templateProvider.compile( src, options.templateSettings );
+					} else if(options.provider === "handlebars"){
+						compiled = templateProvider.precompile( src, options.templateSettings );
 					} else {
 						compiled = templateProvider.template( src, false, options.templateSettings ).source;
+					} 
+
+
+					if(options.provider === "handlebars"){
+						compiled = "_.template("+compiled+")";
 					}
 
-					if ( options.single === true && options.module === true && oneSource )
+					if ( options.single === true && options.module === true && oneSource)
 					{
 						output.push( "module.exports = " + compiled + ";" );
 					}
@@ -150,39 +158,44 @@ module.exports = function ( grunt ) {
 					grunt.log.error( e );
 					grunt.fail.warn( "file failed to compile." );
 				}
+
+
+				if ( output.length > 0 ) {
+					if ( !sys.isEmpty( nsInfo.declaration ) ) {
+						output.unshift( nsInfo.declaration );
+					}
+					if ( options.amdWrapper ) {
+						var amdDefine = typeof options.amdWrapper === "string" ? options.amdWrapper : "define(function(){";
+						output.unshift( amdDefine );
+						output.push( "  return " + nsInfo.namespace + ";\n});" );
+					} else if ( options.requireProvider ) {
+						output.unshift( ["var _ = require('" + options.provider + "');"] );
+					}
+					if ( options.lintExpr && !sys.isEmpty( options.lintExpr ) ) {
+						var lintlines = sys.map( options.lintExpr, function ( v, k ) {
+							return k + ", " + v;
+						} );
+						output.push( "\n jshint " + lintlines.join( " " ) );
+					}
+
+					if ( options.useStrict ) {
+						output.unshift( '"use strict;"\n' );
+					}
+
+					var contents = output.join( "\n" );
+					if ( options.prettify ) {
+						contents = beautifier.beautifyJs( contents, options.prettifyOptions );
+					}
+
+					grunt.file.write( f.dest, contents );
+					//grunt.log.writeln( "File '" + f.dest + "' created." );
+
+				}
+
+
+
 			} );
 
-			if ( output.length > 0 ) {
-				if ( !sys.isEmpty( nsInfo.declaration ) ) {
-					output.unshift( nsInfo.declaration );
-				}
-				if ( options.amdWrapper ) {
-					var amdDefine = typeof options.amdWrapper === "string" ? options.amdWrapper : "define(function(){";
-					output.unshift( amdDefine );
-					output.push( "  return " + nsInfo.namespace + ";\n});" );
-				} else if ( options.requireProvider ) {
-					output.unshift( ["var _ = require('" + options.provider + "');"] );
-				}
-				if ( options.lintExpr && !sys.isEmpty( options.lintExpr ) ) {
-					var lintlines = sys.map( options.lintExpr, function ( v, k ) {
-						return k + ", " + v;
-					} );
-					output.push( "\n jshint " + lintlines.join( " " ) );
-				}
-
-				if ( options.useStrict ) {
-					output.unshift( '"use strict;"\n' );
-				}
-
-				var contents = output.join( "\n" );
-				if ( options.prettify ) {
-					contents = beautifier.beautifyJs( contents, options.prettifyOptions );
-				}
-
-				grunt.file.write( f.dest, contents );
-				grunt.log.writeln( "File '" + f.dest + "' created." );
-
-			}
 		} );
 
 	} );
