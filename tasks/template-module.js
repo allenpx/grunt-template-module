@@ -169,7 +169,13 @@ module.exports = function ( grunt ) {
 						output.unshift( amdDefine );
 						output.push( "  return " + nsInfo.namespace + ";\n});" );
 					} else if ( options.requireProvider ) {
-						output.unshift( ["var _ = require('" + options.provider + "');"] );
+
+						if(options.provider === "handlebars"){
+							output.unshift( ["var _ = require('handlebars/runtime');"] );
+						}else{
+							output.unshift( ["var _ = require('" + options.provider + "');"] );
+						}
+
 					}
 					if ( options.lintExpr && !sys.isEmpty( options.lintExpr ) ) {
 						var lintlines = sys.map( options.lintExpr, function ( v, k ) {
